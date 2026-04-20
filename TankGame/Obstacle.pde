@@ -13,19 +13,27 @@ class Obstacle {
     this.speed = speed;
     this.health = health;
     idir = 'w';
-   obs1 = loadImage("Obstacle.png");
+    obs1 = loadImage("Obstacle.png");
   }
 
   void display() {
     fill(128);
     imageMode(CENTER);
-    image(obs1,x,y);
+    image(obs1, x, y);
   }
 
   void move() {
     x=x+speed;
-    if(x>width) {
-    x = 0;
+    if (x>width) {
+      x = 0;
+    }
+  }
+  boolean intersect(Obstacle o) {
+    float distance = dist(x, y, o.x, o.y);
+    if (distance < 100) {
+      return true;
+    } else {
+      return false;
     }
   }
 }
