@@ -24,7 +24,15 @@ void draw() {
   background(background);
   imageMode(CORNER);
   image(background, 0, 0);
+for (int j = 0; j < obstacles.size(); j++) {
+  Obstacle o = obstacles.get(j);
+  o.display();
+  o.move();
 
+  if (o.offScreen()) {
+    obstacles.remove(j);
+  }
+}
   // Distribute object on timer
   if (objTimer.isFinished()) {
     // Add object
@@ -32,20 +40,21 @@ void draw() {
     // Restart Timer
     objTimer.start();
   }
-  // render and detect collision
+  // Displays and removes obstacles
   for (int i = 0; i < projectiles.size(); i++) {
     Projectile p = projectiles.get(i);
     for (int j = 0; j < obstacles.size(); j++) {
       Obstacle o = obstacles.get(j);
       if (p.intersect(o)) {
-        score = score + 100;
         projectiles.remove(i);
         obstacles.remove(j);
-        continue;
+       score = score + 100;
       }
+      if(t1.intersect(o)) {}
     }
       p.display();
       p.move();
+     
     }
     t1.display();
    // o1.display();

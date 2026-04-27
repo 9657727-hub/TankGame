@@ -1,39 +1,36 @@
 class Obstacle {
-  //Member Varible
   float x, y, w, h, speed, health;
   PImage obs1;
-  char idir;
 
-  //Constructor
+  // Constructor
   Obstacle(float x, float y, float w, float h, float speed, float health) {
-    this.x = x;
-    this.y = y;
     this.w = w;
     this.h = h;
     this.speed = speed;
     this.health = health;
-    idir = 'w';
+
+    // Spawn just off the left side at random height
+    this.x = -w;
+    this.y = random(height);
+
     obs1 = loadImage("Obstacle.png");
   }
 
   void display() {
-    fill(128);
     imageMode(CENTER);
-    image(obs1, x, y);
+    image(obs1, x, y, w, h);
   }
 
   void move() {
-    x=x+speed;
-    if (x>width) {
-      x = 0;
-    }
+    x += speed;
   }
+
+  boolean offScreen() {
+    return x > width + w;
+  }
+
   boolean intersect(Obstacle o) {
     float distance = dist(x, y, o.x, o.y);
-    if (distance < 100) {
-      return true;
-    } else {
-      return false;
-    }
+    return distance < (w / 2 + o.w / 2);
   }
 }
