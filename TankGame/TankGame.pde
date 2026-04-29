@@ -2,69 +2,123 @@
 Tank t1;
 ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
+ArrayList<PowerUp> powerups = new ArrayList<PowerUp>();
 //Obstacle o1, o2, o3;
 PImage background;
 int score;
-Timer objTimer;
+Timer objTimer, puTimer;
+
 
 void setup() {
-  size(500, 500);
+ size(500, 500);
   score = 0;
+
   t1 = new Tank();
-  //o1 = new Obstacle(400, 250, 100, 50, 2, 100);
-  //o2 = new Obstacle(400, 250, 100, 50, 3, 100);
-  //o3 = new Obstacle(400, 250, 100, 50, 4, 100);
+
   background = loadImage("tankbackground.png");
   background.resize(width, height);
+
   objTimer = new Timer(1000);
   objTimer.start();
+
+  puTimer = new Timer(4000);
+  puTimer.start();
 }
 
-void draw() {
+
+  void draw() {
   background(background);
   imageMode(CORNER);
   image(background, 0, 0);
-for (int j = 0; j < obstacles.size(); j++) {
-  Obstacle o = obstacles.get(j);
-  o.display();
-  o.move();
 
-  if (o.offScreen()) {
-    obstacles.remove(j);
-  }
-}
-  // Distribute object on timer
+  // HEALTH BAR
+  rectMode(CORNER);
+  fill(255, 0, 0);
+  fill(0, 255, 0);
+
+
+  // SPAWN OBSTACLES
   if (objTimer.isFinished()) {
-    // Add object
- obstacles.add(new Obstacle(-100, 200, 100, 100,int(random(1, 10)), 10));
-    // Restart Timer
+    obstacles.add(new Obstacle(-100, 200, 100, 100, int(random(1, 10)), 10));
     objTimer.start();
   }
-  // Displays and removes obstacles
-  for (int i = 0; i < projectiles.size(); i++) {
+
+  // OBSTACLES LOOP
+  for (int j = obstacles.size()-1; j >= 0; j--) {
+    Obstacle o = obstacles.get(j);
+    o.display();
+    o.move();
+
+    if (o.offScreen()) {
+      obstacles.remove(j);
+    }
+
+    // DAMAGE PLAYER
+    if (t1.intersect(o)) {
+      t1.health -= 0.3;
+    }
+  }
+
+  // PROJECTILES
+  for (int i = projectiles.size()-1; i >= 0; i--) {
     Projectile p = projectiles.get(i);
-    for (int j = 0; j < obstacles.size(); j++) {
+
+    p.display();
+    p.move();
+
+    for (int j = obstacles.size()-1; j >= 0; j--) {
       Obstacle o = obstacles.get(j);
+
       if (p.intersect(o)) {
         projectiles.remove(i);
         obstacles.remove(j);
-       score = score + 100;
+        score += 100;
+        break;
       }
-      if(t1.intersect(o)) {}
     }
-      p.display();
-      p.move();
-     
-    }
-    t1.display();
-   // o1.display();
-   // o1.move();
-    //o2.display();
-   // o2.move();
-   // o3.display();
-   // o3.move();
-    scorePanel();
   }
+
+  // SPAWN POWERUPS
+  if (puTimer.isFinished()) {
+    powerups.add(new PowerUp());
+    puTimer.start();
+  }
+
+  // POWERUPS LOOP
+  for (int i = powerups.size()-1; i >= 0; i--) {
+    PowerUp p = powerups.get(i);
+    p.display();
+
+    if (p.touchTank(t1)) {
+      t1.health += 20;
+      if (t1.health > 100) t1.health = 100;
+      powerups.remove(i);
+    }
+  }
+
+  // DRAW PLAYER
+  t1.display();
+
+  // UI
+  fill(255);
+  textSize(20);
+  text("Health: " + int(t1.health), 10, 50);
+
+  scorePanel();
+
+  // GAME OVER
+  if (t1.health <= 0) {
+    background(0);
+    fill(255);
+    textSize(40);
+    textAlign(CENTER);
+    text("GAME OVER", width/2, height/2);
+    noLoop();
+  }
+}
+
+ 
+
 
   void keyPressed() {
     if (key == 'w') {
@@ -80,7 +134,7 @@ for (int j = 0; j < obstacles.size(); j++) {
 
   void mousePressed() {
     float dx = mouseX - t1.x;
-    float dy = mouseY - t1.x;
+    float dy = mouseY - t1.y;
     float mag = sqrt(dx*dx + dy*dy);
 
     if (mag > 0) {
@@ -100,4 +154,5 @@ for (int j = 0; j < obstacles.size(); j++) {
     textSize(30);
     textAlign(CENTER);
     text("Score:" + score, width/2, 25);
+    text("Health:"+t1.health,width/2,55);
   }

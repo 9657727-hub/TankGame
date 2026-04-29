@@ -12,7 +12,7 @@ class Projectile {
     this.vy = vy;
     this.w = 10;
     this.h = 10;
-    speed = 10;
+    speed = 90;
     idir = 'u';
   }
 
